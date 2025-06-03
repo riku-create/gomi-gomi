@@ -41,11 +41,22 @@ st.markdown("""
         font-size: 40px;
         text-align: center;
         margin-bottom: 30px;
+        white-space: nowrap;
+    }
+    .result-text {
+        font-size: 24px;
+        font-weight: bold;
+        color: #2E7D32;
+        text-align: center;
+        padding: 15px;
+        background-color: #E8F5E9;
+        border-radius: 10px;
+        margin: 20px 0;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# タイトル
+# タイトル（一行で表示）
 st.markdown('<h1 class="title">♻️ ゴミ分別アシスタント ♻️</h1>', unsafe_allow_html=True)
 
 # 説明文
@@ -79,16 +90,18 @@ if uploaded_file is not None:
         logits = outputs.logits
         predicted_class = torch.argmax(logits, dim=1).item()
         
-        # 分類結果の表示
+        # 分類結果の表示（一行で表示）
+        st.markdown('<div class="result-text">このゴミは 🔥 可燃ゴミ です！ 捨てる日は月曜日と木曜日です！</div>', unsafe_allow_html=True)
+        
+        # 捨て方のポイント
         st.markdown('<div class="garbage-info">', unsafe_allow_html=True)
-        st.markdown("### 🎯 分別結果")
-        st.markdown("#### このゴミは...")
-        st.markdown("##### 🔥 可燃ゴミ")
         st.markdown("""
         ##### 💡 捨て方のポイント
         - 水気をよく切ってから捨ててね
         - できるだけ小さくしてから捨てよう
         - においのするものはビニール袋に入れてね
+        - 朝8時までに出してね！
+        - 雨の日はビニール袋に入れてね
         """)
         st.markdown('</div>', unsafe_allow_html=True)
 
