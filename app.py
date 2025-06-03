@@ -41,7 +41,7 @@ st.markdown("""
     }
     .title {
         color: #2E7D32;
-        font-size: clamp(24px, 5vw, 40px);
+        font-size: clamp(20px, 4vw, 32px);
         text-align: center;
         margin-bottom: 30px;
         white-space: nowrap;
