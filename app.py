@@ -45,9 +45,11 @@ st.markdown("""
         text-align: center;
         margin-bottom: 30px;
         white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        overflow: visible;
+        text-overflow: clip;
         padding: 0 20px;
+        width: 100%;
+        display: inline-block;
     }
     .result-text {
         font-size: 24px;
@@ -68,7 +70,7 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # タイトル（一行で表示、サイズ自動調整）
-st.markdown('<h1 class="title">♻️ ゴミ分別アシスタント ♻️</h1>', unsafe_allow_html=True)
+st.markdown('<div style="width: 100%; text-align: center;"><h1 class="title">♻️ ゴミ分別アシスタント ♻️</h1></div>', unsafe_allow_html=True)
 
 # 説明文
 st.markdown("""
@@ -152,7 +154,7 @@ if uploaded_file is not None:
         predicted_class = torch.argmax(logits, dim=1).item()
         
         # 分類結果の表示（一行で表示）
-        st.markdown('<div class="result-text">このゴミは 🔥 可燃ゴミ です！ 捨てる日は月曜日と木曜日です！</div>', unsafe_allow_html=True)
+        st.markdown('<div class="result-text">このゴミは 🔥 可燃ゴミ です！</div>', unsafe_allow_html=True)
         
         # 捨て方のポイント
         st.markdown('<div class="garbage-info">', unsafe_allow_html=True)
