@@ -19,64 +19,92 @@ st.set_page_config(
 # カスタムCSS
 st.markdown("""
     <style>
+    body {
+        background: linear-gradient(135deg, #e0f7fa 0%, #fffde7 100%);
+    }
     .main {
-        background-color: #f0f8ff;
+        background-color: transparent;
     }
-    .stButton>button {
-        background-color: #4CAF50;
-        color: white;
-        border-radius: 20px;
-        padding: 10px 25px;
-        font-size: 20px;
-    }
-    .stButton>button:hover {
-        background-color: #45a049;
-    }
-    .garbage-info {
-        background-color: white;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        margin: 10px 0;
+    .app-card {
+        background: #fff;
+        border-radius: 24px;
+        box-shadow: 0 6px 24px rgba(44, 62, 80, 0.10);
+        padding: 28px 18px 24px 18px;
+        margin: 18px 0 28px 0;
+        max-width: 480px;
+        margin-left: auto;
+        margin-right: auto;
     }
     .title {
         color: #2E7D32;
         font-size: clamp(8px, 1.2vw, 14px);
+        font-weight: 700;
         text-align: center;
-        margin-bottom: 30px;
+        margin-bottom: 18px;
         white-space: nowrap;
         overflow: visible;
         text-overflow: clip;
-        padding: 0 20px;
+        padding: 0 10px;
         width: 100%;
         display: inline-block;
+        letter-spacing: 0.05em;
+    }
+    .stButton>button, .stFileUploader>div>button {
+        background: linear-gradient(90deg, #4CAF50 60%, #81C784 100%);
+        color: #fff;
+        border-radius: 18px;
+        padding: 12px 32px;
+        font-size: 18px;
+        font-weight: 600;
+        box-shadow: 0 2px 8px rgba(44, 62, 80, 0.10);
+        border: none;
+        margin: 8px 0;
+        transition: background 0.2s;
+    }
+    .stButton>button:hover, .stFileUploader>div>button:hover {
+        background: linear-gradient(90deg, #388E3C 60%, #66BB6A 100%);
+    }
+    .stTextInput>div>input, .stSelectbox>div>div>div>input {
+        border-radius: 14px;
+        border: 1.5px solid #B2DFDB;
+        padding: 12px 16px;
+        font-size: 16px;
+        background: #f9fbe7;
+        margin-bottom: 10px;
     }
     .result-text {
-        font-size: 24px;
+        font-size: 22px;
         font-weight: bold;
         color: #2E7D32;
         text-align: center;
         padding: 15px;
         background-color: #E8F5E9;
-        border-radius: 10px;
+        border-radius: 14px;
         margin: 20px 0;
+        box-shadow: 0 2px 8px rgba(44, 62, 80, 0.10);
     }
-    @media screen and (max-width: 768px) {
-        .title {
-            font-size: clamp(20px, 4vw, 32px);
-        }
+    .garbage-info {
+        background-color: #f9fbe7;
+        padding: 18px;
+        border-radius: 16px;
+        box-shadow: 0 2px 8px rgba(44, 62, 80, 0.08);
+        margin: 10px 0;
+    }
+    @media screen and (max-width: 480px) {
+        .app-card { padding: 12px 2vw 16px 2vw; }
+        .title { font-size: clamp(8px, 3vw, 13px); }
     }
     </style>
     """, unsafe_allow_html=True)
 
-# タイトル（一行で表示、サイズ自動調整）
+# タイトルと説明をカードで囲む
+st.markdown('<div class="app-card">', unsafe_allow_html=True)
 st.markdown('<div style="width: 100%; text-align: center;"><h1 class="title">♻️ ゴミ分別アシスタント ♻️</h1></div>', unsafe_allow_html=True)
-
-# 説明文
 st.markdown("""
     ### 👋 こんにちは！ゴミ分別を手伝うよ！
     ゴミの写真を撮って、どこに捨てればいいか教えてあげるね！
     """)
+st.markdown('</div>', unsafe_allow_html=True)
 
 # モデルの読み込み
 @st.cache_resource
@@ -137,26 +165,19 @@ def get_garbage_schedule(prefecture, city):
             ]
         }
 
-# 画像アップロード
+# 画像アップロードもカードで囲む
+st.markdown('<div class="app-card">', unsafe_allow_html=True)
 st.markdown("### 📸 ゴミの写真を撮ってね！")
 uploaded_file = st.file_uploader("ここに写真をドラッグ＆ドロップするか、クリックして選んでね！", type=['jpg', 'jpeg', 'png'])
-
 if uploaded_file is not None:
-    # 画像の表示
     image = Image.open(uploaded_file)
     st.image(image, caption='📸 アップロードされた写真', use_column_width=True)
-    
-    # 画像の分類
     with st.spinner('🔍 ゴミの種類を調べているよ...'):
         inputs = processor(images=image, return_tensors="pt")
         outputs = model(**inputs)
         logits = outputs.logits
         predicted_class = torch.argmax(logits, dim=1).item()
-        
-        # 分類結果の表示（一行で表示）
         st.markdown('<div class="result-text">このゴミは 🔥 可燃ゴミ です！</div>', unsafe_allow_html=True)
-        
-        # 捨て方のポイント
         st.markdown('<div class="garbage-info">', unsafe_allow_html=True)
         st.markdown("""
         ##### 💡 捨て方のポイント
@@ -167,44 +188,37 @@ if uploaded_file is not None:
         - 雨の日はビニール袋に入れてね
         """)
         st.markdown('</div>', unsafe_allow_html=True)
+st.markdown('</div>', unsafe_allow_html=True)
 
-# 地域情報の入力
+# 地域情報の入力もカードで囲む
+st.markdown('<div class="app-card">', unsafe_allow_html=True)
 st.markdown("### 🏠 あなたの住んでいる場所を教えてね！")
 col1, col2 = st.columns(2)
-
-# 都道府県の選択
 prefectures = load_location_data()
 with col1:
     prefecture = st.selectbox("都道府県", prefectures)
-
-# 市区町村の入力
 with col2:
     city = st.text_input("市区町村", placeholder="例：渋谷区")
-
 if prefecture and city:
-    # ゴミ出し情報を取得
     schedule = get_garbage_schedule(prefecture, city)
-    
     st.markdown('<div class="garbage-info">', unsafe_allow_html=True)
     st.markdown(f"### 📅 {prefecture}{city}のゴミ出しカレンダー")
-    
-    # ゴミの種類ごとの表示
     for garbage_type, days in schedule.items():
         if garbage_type != "注意事項":
             st.markdown(f"#### {garbage_type}")
             st.markdown(f"- {'・'.join(days)}")
-    
-    # 注意事項の表示
     st.markdown("""
     ##### ⚠️ 注意事項
     """)
     for note in schedule["注意事項"]:
         st.markdown(f"- {note}")
-    
     st.markdown('</div>', unsafe_allow_html=True)
+st.markdown('</div>', unsafe_allow_html=True)
 
-# フッター
+# フッターもカードで囲む
+st.markdown('<div class="app-card">', unsafe_allow_html=True)
 st.markdown("""
     ---
     ### 🌟 ゴミ分別で地球をきれいにしよう！
-    """) 
+    """)
+st.markdown('</div>', unsafe_allow_html=True) 
