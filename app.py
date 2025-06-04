@@ -126,6 +126,44 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
+# ラベルID→ゴミ種別・アイコン・説明のマッピング例
+GARBAGE_LABEL_MAP = {
+    # 例: ImageNetのラベルIDを仮で割り当て
+    409: {  # "banana"
+        'type': '可燃ゴミ',
+        'icon': '🔥',
+        'desc': ['皮や食べ残しは可燃ゴミです', '水気を切って捨てましょう']
+    },
+    569: {  # "plastic bag"
+        'type': '資源ゴミ',
+        'icon': '♻️',
+        'desc': ['プラマークがある袋は資源ゴミです', '洗って乾かして出しましょう']
+    },
+    829: {  # "bottle"
+        'type': '資源ゴミ',
+        'icon': '🧴',
+        'desc': ['ペットボトルは資源ゴミです', 'ラベルとキャップは外して']
+    },
+    569: {  # "plastic bag"
+        'type': '資源ゴミ',
+        'icon': '♻️',
+        'desc': ['プラマークがある袋は資源ゴミです', '洗って乾かして出しましょう']
+    },
+    920: {  # "tin can"
+        'type': '不燃ゴミ',
+        'icon': '🗑️',
+        'desc': ['缶は不燃ゴミです', '中を洗ってから捨てましょう']
+    },
+    # ... 必要に応じて追加 ...
+}
+
+def get_garbage_info(predicted_class):
+    info = GARBAGE_LABEL_MAP.get(predicted_class)
+    if info:
+        return info['type'], info['icon'], info['desc']
+    # デフォルト
+    return 'その他', '❓', ['自治体のルールを確認してください']
+
 # --- ページ切り替え ---
 page = st.sidebar.radio('ページを選択', ['アシスタント', 'ごみ履歴'])
 
@@ -206,29 +244,24 @@ if page == 'アシスタント':
     st.markdown("### 📸 ゴミの写真を撮ってね！")
     uploaded_file = st.file_uploader("ここに写真をドラッグ＆ドロップするか、クリックして選んでね！", type=['jpg', 'jpeg', 'png'])
     if uploaded_file is not None:
-        image = Image.open(uploaded_file)
+        img_bytes = uploaded_file.read()
+        image = Image.open(io.BytesIO(img_bytes))
         st.image(image, caption='📸 アップロードされた写真', use_column_width=True)
         with st.spinner('🔍 ゴミの種類を調べているよ...'):
             inputs = processor(images=image, return_tensors="pt")
             outputs = model(**inputs)
             logits = outputs.logits
             predicted_class = torch.argmax(logits, dim=1).item()
-            # 仮の分類名とアイコン
-            garbage_type = "可燃ゴミ"
-            garbage_icon = "🔥"
+            garbage_type, garbage_icon, garbage_desc = get_garbage_info(predicted_class)
             st.markdown(f'<div class="result-text">このゴミは {garbage_icon} {garbage_type} です！</div>', unsafe_allow_html=True)
             st.markdown('<div class="garbage-info">', unsafe_allow_html=True)
             st.markdown("""
             ##### 💡 捨て方のポイント
-            - 水気をよく切ってから捨ててね
-            - できるだけ小さくしてから捨てよう
-            - においのするものはビニール袋に入れてね
-            - 朝8時までに出してね！
-            - 雨の日はビニール袋に入れてね
             """)
+            for d in garbage_desc:
+                st.markdown(f'- {d}')
             st.markdown('</div>', unsafe_allow_html=True)
             # 履歴に追加（画像も保存）
-            img_bytes = uploaded_file.read()
             st.session_state['garbage_history'].append({
                 'type': garbage_type,
                 'icon': garbage_icon,
@@ -276,10 +309,10 @@ elif page == 'ごみ履歴':
     history = st.session_state['garbage_history']
     if history:
         st.markdown('<div class="item-grid">', unsafe_allow_html=True)
+        import base64
         for item in reversed(history[-30:]):
             img_html = ''
             if 'img' in item and item['img']:
-                import base64
                 img_b64 = base64.b64encode(item['img']).decode('utf-8')
                 img_html = f'<img src="data:image/png;base64,{img_b64}" style="width:48px;height:48px;border-radius:8px;object-fit:cover;margin-bottom:4px;" />'
             st.markdown(f'<div class="item-card">{img_html}<div class="item-icon">{item["icon"]}</div>{item["type"]}<br><span style="font-size:10px;color:#888;">{item["time"]}</span></div>', unsafe_allow_html=True)
