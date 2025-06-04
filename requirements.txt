@@ -2,5 +2,5 @@ streamlit==1.32.0
 Pillow==10.2.0
 requests==2.31.0
 python-dotenv==1.0.1
-transformers==4.38.2
+transformers==4.36.2
 torch==2.2.1 
