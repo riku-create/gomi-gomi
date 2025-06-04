@@ -227,11 +227,13 @@ if page == 'アシスタント':
             - 雨の日はビニール袋に入れてね
             """)
             st.markdown('</div>', unsafe_allow_html=True)
-            # 履歴に追加
+            # 履歴に追加（画像も保存）
+            img_bytes = uploaded_file.read()
             st.session_state['garbage_history'].append({
                 'type': garbage_type,
                 'icon': garbage_icon,
-                'time': datetime.now().strftime('%Y-%m-%d %H:%M')
+                'time': datetime.now().strftime('%Y-%m-%d %H:%M'),
+                'img': img_bytes
             })
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -271,12 +273,16 @@ if page == 'アシスタント':
 elif page == 'ごみ履歴':
     st.markdown('<div class="app-card">', unsafe_allow_html=True)
     st.markdown('<div style="width: 100%; text-align: center;"><h1 class="title">🗂️ ごみ履歴</h1></div>', unsafe_allow_html=True)
-    st.markdown('### ゲームのアイテム欄風に、捨てたごみをコレクション！')
     history = st.session_state['garbage_history']
     if history:
         st.markdown('<div class="item-grid">', unsafe_allow_html=True)
         for item in reversed(history[-30:]):
-            st.markdown(f'<div class="item-card"><div class="item-icon">{item["icon"]}</div>{item["type"]}<br><span style="font-size:10px;color:#888;">{item["time"]}</span></div>', unsafe_allow_html=True)
+            img_html = ''
+            if 'img' in item and item['img']:
+                import base64
+                img_b64 = base64.b64encode(item['img']).decode('utf-8')
+                img_html = f'<img src="data:image/png;base64,{img_b64}" style="width:48px;height:48px;border-radius:8px;object-fit:cover;margin-bottom:4px;" />'
+            st.markdown(f'<div class="item-card">{img_html}<div class="item-icon">{item["icon"]}</div>{item["type"]}<br><span style="font-size:10px;color:#888;">{item["time"]}</span></div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
     else:
         st.markdown('まだごみは登録されていません。')
