@@ -92,7 +92,10 @@ st.markdown("""
     }
     @media screen and (max-width: 480px) {
         .app-card { padding: 12px 2vw 16px 2vw; }
-        .title { font-size: clamp(8px, 3vw, 13px); }
+        .title {
+            font-size: clamp(8px, 3vw, 13px);
+            white-space: normal;
+        }
     }
     </style>
     """, unsafe_allow_html=True)
