@@ -351,4 +351,8 @@ elif page == 'ごみ履歴':
         st.markdown('</div>', unsafe_allow_html=True)
     else:
         st.markdown('まだごみは登録されていません。')
+<<<<<<< HEAD
     st.markdown('</div>', unsafe_allow_html=True) 
+=======
+    st.markdown('</div>', unsafe_allow_html=True) 
+>>>>>>> de02a6defbbf8200da08c57c4ac24b9f38728df5
