@@ -7,6 +7,7 @@ import torch
 import json
 import pandas as pd
 from datetime import datetime
+import hashlib
 
 # ページ設定
 st.set_page_config(
@@ -170,6 +171,16 @@ page = st.sidebar.radio('ページを選択', ['アシスタント', 'ごみ履�
 if 'garbage_history' not in st.session_state:
     st.session_state['garbage_history'] = []
 
+def get_image_hash(img_bytes):
+    return hashlib.md5(img_bytes).hexdigest()
+
+def is_duplicate_image(img_bytes, history):
+    img_hash = get_image_hash(img_bytes)
+    for item in history:
+        if 'img_hash' in item and item['img_hash'] == img_hash:
+            return True
+    return False
+
 if page == 'アシスタント':
     # モデルの読み込み
     @st.cache_resource
@@ -262,12 +273,14 @@ if page == 'アシスタント':
                 st.markdown(f'- {d}')
             st.markdown('</div>', unsafe_allow_html=True)
             # 履歴に追加（画像も保存）
-            st.session_state['garbage_history'].append({
-                'type': garbage_type,
-                'icon': garbage_icon,
-                'time': datetime.now().strftime('%Y-%m-%d %H:%M'),
-                'img': img_bytes
-            })
+            if not is_duplicate_image(img_bytes, st.session_state['garbage_history']):
+                st.session_state['garbage_history'].append({
+                    'type': garbage_type,
+                    'icon': garbage_icon,
+                    'time': datetime.now().strftime('%Y-%m-%d %H:%M'),
+                    'img': img_bytes,
+                    'img_hash': get_image_hash(img_bytes)
+                })
     st.markdown('</div>', unsafe_allow_html=True)
 
     # 地域情報の入力もカードで囲む
