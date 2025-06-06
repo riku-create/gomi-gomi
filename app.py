@@ -8,6 +8,8 @@ import json
 import pandas as pd
 from datetime import datetime
 import hashlib
+import base64
+import os
 
 # ページ設定
 st.set_page_config(
@@ -181,6 +183,17 @@ def is_duplicate_image(img_bytes, history):
             return True
     return False
 
+def get_audio_base64():
+    # 効果音のBase64エンコードされたデータ
+    return """
+    UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU
+    """
+
+def play_sound():
+    # 効果音のURL（短い効果音）
+    audio_url = "https://www.soundjay.com/buttons/sounds/button-09.mp3"
+    st.audio(audio_url, format='audio/mp3', start_time=0)
+
 if page == 'アシスタント':
     # モデルの読み込み
     @st.cache_resource
@@ -265,6 +278,7 @@ if page == 'アシスタント':
             predicted_class = torch.argmax(logits, dim=1).item()
             garbage_type, garbage_icon, garbage_desc = get_garbage_info(predicted_class)
             st.markdown(f'<div class="result-text">このゴミは {garbage_icon} {garbage_type} です！</div>', unsafe_allow_html=True)
+            play_sound()  # 効果音を再生
             st.markdown('<div class="garbage-info">', unsafe_allow_html=True)
             st.markdown("""
             ##### 💡 捨て方のポイント
@@ -322,7 +336,6 @@ elif page == 'ごみ履歴':
     history = st.session_state['garbage_history']
     if history:
         st.markdown('<div class="item-grid">', unsafe_allow_html=True)
-        import base64
         for item in reversed(history[-30:]):
             img_html = ''
             if 'img' in item and item['img']:
