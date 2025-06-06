@@ -190,9 +190,15 @@ def get_audio_base64():
     """
 
 def play_sound():
-    # 効果音のURL（短い効果音）
-    audio_url = "https://www.soundjay.com/buttons/sounds/button-09.mp3"
-    st.audio(audio_url, format='audio/mp3', start_time=0)
+    with open('break.mp3', 'rb') as f:
+        audio_bytes = f.read()
+    audio_b64 = base64.b64encode(audio_bytes).decode()
+    audio_html = f'''
+        <audio autoplay hidden>
+            <source src="data:audio/mp3;base64,{audio_b64}" type="audio/mp3">
+        </audio>
+    '''
+    st.markdown(audio_html, unsafe_allow_html=True)
 
 if page == 'アシスタント':
     # モデルの読み込み
@@ -278,7 +284,7 @@ if page == 'アシスタント':
             predicted_class = torch.argmax(logits, dim=1).item()
             garbage_type, garbage_icon, garbage_desc = get_garbage_info(predicted_class)
             st.markdown(f'<div class="result-text">このゴミは {garbage_icon} {garbage_type} です！</div>', unsafe_allow_html=True)
-            play_sound()  # 効果音を再生
+            play_sound()  # 効果音を自動再生
             st.markdown('<div class="garbage-info">', unsafe_allow_html=True)
             st.markdown("""
             ##### 💡 捨て方のポイント
