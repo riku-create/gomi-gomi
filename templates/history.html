@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ごみ履歴 - ゴミ分別アシスタント</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #e0f7fa 0%, #fffde7 100%);
+            min-height: 100vh;
+        }
+        .app-card {
+            background: #fff;
+            border-radius: 24px;
+            box-shadow: 0 6px 24px rgba(44, 62, 80, 0.10);
+            padding: 28px 18px 24px 18px;
+            margin: 18px 0 28px 0;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .title {
+            color: #2E7D32;
+            font-size: 2rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 18px;
+        }
+        .btn-primary {
+            background: linear-gradient(90deg, #4CAF50 60%, #81C784 100%);
+            border: none;
+            border-radius: 18px;
+            padding: 12px 32px;
+            font-size: 18px;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(44, 62, 80, 0.10);
+            transition: background 0.2s;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(90deg, #388E3C 60%, #66BB6A 100%);
+        }
+        .history-item {
+            background: #f9fbe7;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(44, 62, 80, 0.08);
+        }
+        .history-image {
+            max-width: 200px;
+            border-radius: 14px;
+            margin: 10px 0;
+        }
+        .btn-danger {
+            background: #f44336;
+            border: none;
+            border-radius: 18px;
+            padding: 8px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(44, 62, 80, 0.10);
+        }
+        .btn-danger:hover {
+            background: #d32f2f;
+        }
+        .btn-success {
+            background: #4CAF50;
+            border: none;
+            border-radius: 18px;
+            padding: 8px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(44, 62, 80, 0.10);
+        }
+        .btn-success:hover {
+            background: #388E3C;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <div class="app-card">
+            <h1 class="title">📝 ごみ履歴</h1>
+
+            {% if history %}
+                <div class="d-flex justify-content-between mb-4">
+                    <button id="clearHistory" class="btn btn-danger">履歴を全削除</button>
+                    <a href="/api/history/download" class="btn btn-success">CSVでダウンロード</a>
+                </div>
+
+                {% for item in history %}
+                    <div class="history-item" id="history-item-{{ loop.index0 }}">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <h5>日時: {{ item.time }}</h5>
+                                <h5>種類: {{ item.type }}</h5>
+                                {% if item.img %}
+                                    <img src="data:image/png;base64,{{ item.img }}" class="history-image">
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 d-flex align-items-center justify-content-end">
+                                <button class="btn btn-danger me-2" onclick="deleteHistory({{ loop.index0 }})">削除</button>
+                                <button class="btn btn-success" onclick="addStamp({{ loop.index0 }})">スタンプ</button>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center">
+                    <p class="fs-5">履歴がありません</p>
+                </div>
+            {% endif %}
+
+            <div class="text-center mt-4">
+                <a href="/" class="btn btn-outline-success">ホームに戻る</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function deleteHistory(index) {
+            if (confirm('この履歴を削除しますか？')) {
+                try {
+                    const response = await fetch('/api/history/delete', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ index })
+                    });
+
+                    if (response.ok) {
+                        document.getElementById(`history-item-${index}`).remove();
+                        if (document.querySelectorAll('.history-item').length === 0) {
+                            location.reload();
+                        }
+                    } else {
+                        alert('削除に失敗しました');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('エラーが発生しました');
+                }
+            }
+        }
+
+        async function clearHistory() {
+            if (confirm('すべての履歴を削除しますか？')) {
+                try {
+                    const response = await fetch('/api/history/clear', {
+                        method: 'POST'
+                    });
+
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        alert('削除に失敗しました');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('エラーが発生しました');
+                }
+            }
+        }
+
+        function addStamp(index) {
+            const item = document.getElementById(`history-item-${index}`);
+            const stamp = document.createElement('div');
+            stamp.className = 'text-center mt-2';
+            stamp.innerHTML = '🎉 スタンプを獲得しました！';
+            item.appendChild(stamp);
+        }
+
+        document.getElementById('clearHistory').addEventListener('click', clearHistory);
+    </script>
+</body>
+</html> 

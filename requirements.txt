@@ -1,8 +1,9 @@
-streamlit==1.32.0
+flask==2.0.3
+werkzeug==2.0.3
+pillow==9.5.0
 torch==2.2.0
 torchvision==0.17.0
-transformers==4.37.2
-Pillow==10.2.0
-pandas==2.2.0
+transformers==4.30.2
+pandas==2.0.3
 requests==2.31.0
-python-dotenv==1.0.1 
+python-dotenv==1.0.1

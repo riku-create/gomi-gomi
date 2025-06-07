@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ゴミ分別アシスタント</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #e0f7fa 0%, #fffde7 100%);
+            min-height: 100vh;
+        }
+        .app-card {
+            background: #fff;
+            border-radius: 24px;
+            box-shadow: 0 6px 24px rgba(44, 62, 80, 0.10);
+            padding: 28px 18px 24px 18px;
+            margin: 18px 0 28px 0;
+            max-width: 480px;
+            margin-left: auto;
+            margin-right: auto;
+            padding-bottom: 48px;
+        }
+        .title {
+            color: #2E7D32;
+            font-size: 2rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 18px;
+        }
+        .btn-primary {
+            background: linear-gradient(90deg, #4CAF50 60%, #81C784 100%);
+            border: none;
+            border-radius: 18px;
+            padding: 12px 32px;
+            font-size: 18px;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(44, 62, 80, 0.10);
+            transition: background 0.2s;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(90deg, #388E3C 60%, #66BB6A 100%);
+        }
+        .btn-secondary {
+            background: #fff;
+            border: 1px solid #4CAF50;
+            border-radius: 18px;
+            padding: 12px 32px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #4CAF50;
+            transition: background 0.2s;
+        }
+        .btn-secondary:hover {
+            background: #e0f7fa;
+        }
+        /* 設定ボタンを常に最前面に表示 */
+        .settings-fixed-btn {
+            position: fixed;
+            top: 24px;
+            right: 32px;
+            z-index: 9999;
+            text-decoration: none;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(44,62,80,0.10);
+            padding: 4px;
+            transition: box-shadow 0.2s;
+        }
+        .settings-fixed-btn:hover {
+            box-shadow: 0 4px 16px rgba(44,62,80,0.18);
+            background: #f0f0f0;
+        }
+        .container.position-relative {
+            position: relative;
+        }
+        .settings-bottom-btn {
+            position: absolute;
+            left: 50%;
+            bottom: -28px;
+            transform: translateX(-50%);
+            min-width: 160px;
+            max-width: 240px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 18px 18px 32px 32px;
+            box-shadow: 0 2px 8px rgba(44,62,80,0.10);
+            background: #fff;
+            color: #4CAF50;
+            border: 2px solid #4CAF50;
+            padding: 14px 0;
+            z-index: 10;
+            text-align: center;
+            display: block;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .settings-bottom-btn:hover {
+            background: #e0f7fa;
+        }
+    </style>
+</head>
+<body>
+    <!-- 右上に設定ボタン -->
+    <a href="/settings" class="settings-fixed-btn" title="設定">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#4CAF50" class="bi bi-gear-fill" viewBox="0 0 16 16">
+            <path d="M9.405 1.05c-.413-1.127-2.397-1.127-2.81 0l-.094.255a1.5 1.5 0 0 1-2.282.668l-.211-.13c-1.06-.653-2.31.597-1.658 1.658l.13.211a1.5 1.5 0 0 1-.669 2.282l-.254.094c-1.128.413-1.128 2.397 0 2.81l.254.094a1.5 1.5 0 0 1 .669 2.282l-.13.211c-.652 1.06.598 2.311 1.658 1.658l.211-.13a1.5 1.5 0 0 1 2.282.669l.094.254c.413 1.128 2.397 1.128 2.81 0l.094-.254a1.5 1.5 0 0 1 2.282-.669l.211.13c1.06.653 2.31-.598 1.658-1.658l-.13-.211a1.5 1.5 0 0 1 .669-2.282l.254-.094c1.128-.413 1.128-2.397 0-2.81l-.254-.094a1.5 1.5 0 0 1-.669-2.282l.13-.211c.652-1.06-.598-2.311-1.658-1.658l-.211.13a1.5 1.5 0 0 1-2.282-.668l-.094-.255zm-2.197.36c.197-.54 1.087-.54 1.284 0l.094.255a2.5 2.5 0 0 0 3.805 1.113l.211-.13c.433-.267.933.233.666.666l-.13.211a2.5 2.5 0 0 0 1.113 3.805l.254.094c.54.197.54 1.087 0 1.284l-.254.094a2.5 2.5 0 0 0-1.113 3.805l.13.211c.267.433-.233.933-.666.666l-.211-.13a2.5 2.5 0 0 0-3.805 1.113l-.094.254c-.197.54-1.087.54-1.284 0l-.094-.254a2.5 2.5 0 0 0-3.805-1.113l-.211.13c-.433.267-.933-.233-.666-.666l.13-.211a2.5 2.5 0 0 0-1.113-3.805l-.254-.094c-.54-.197-.54-1.087 0-1.284l.254-.094a2.5 2.5 0 0 0 1.113-3.805l-.13-.211c-.267-.433.233-.933.666-.666l.211.13a2.5 2.5 0 0 0 3.805-1.113l.094-.255zM8 5.5A2.5 2.5 0 1 0 8 10a2.5 2.5 0 0 0 0-4.5z"/>
+        </svg>
+    </a>
+    <div class="container py-5 position-relative">
+        <div class="app-card">
+            <h1 class="title">♻️ ゴミ分別アシスタント ♻️</h1>
+            <div class="text-center mb-4">
+                <h3>👋 こんにちは！ゴミ分別を手伝うよ！</h3>
+                <p>ゴミの写真を撮って、どこに捨てればいいか教えてあげるね！</p>
+            </div>
+            <div class="d-grid gap-3">
+                <a href="/assistant" class="btn btn-primary">アシスタントを開始</a>
+                <a href="/history" class="btn btn-primary">履歴を見る</a>
+                <a href="/quiz" class="btn btn-primary">クイズに挑戦</a>
+            </div>
+        </div>
+        <!-- カード下端中央に設定ボタン -->
+        <a href="/settings" class="settings-bottom-btn">設定</a>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 
